@@ -50,6 +50,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (input.photoUrl && input.videoUrl) {
+      return NextResponse.json(
+        { error: "Please choose either one picture or one video, not both." },
+        { status: 400 },
+      );
+    }
+
     const id = await createBirthdaySubmission(input);
     return NextResponse.json({ ok: true, id }, { status: 201 });
   } catch (error) {

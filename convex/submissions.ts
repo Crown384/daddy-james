@@ -19,6 +19,10 @@ export const create = mutationGeneric({
       throw new Error("A submission must contain at least one birthday contribution.");
     }
 
+    if (args.photoUrl && args.videoUrl) {
+      throw new Error("A submission can contain either one picture or one video, not both.");
+    }
+
     if (name && name.length > 80) {
       throw new Error("Name is too long.");
     }
