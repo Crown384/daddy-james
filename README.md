@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Daddy James Birthday Book
 
-## Getting Started
+A small private birthday experience for Daddy James and the COT family.
 
-First, run the development server:
+## What it does
+
+- Public member page for an optional name, birthday wish, picture and/or video.
+- Pictures and videos upload directly to Cloudinary with a server-generated signature.
+- Convex stores only the submission text and Cloudinary metadata/URLs.
+- Daddy James gets a private album at `/daddy-james/<ADMIN_ACCESS_TOKEN>`.
+- The admin token is checked by both Next.js and Convex.
+
+## Local setup
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
+pnpm convex dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Convex will walk you through creating/linking the deployment. Copy the generated
+`NEXT_PUBLIC_CONVEX_URL` to Vercel.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Create a strong random `ADMIN_ACCESS_TOKEN`, then set the **same** value in:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Vercel as `ADMIN_ACCESS_TOKEN`.
+2. Convex with:
 
-## Learn More
+```bash
+pnpm convex env set ADMIN_ACCESS_TOKEN your-secret-token
+```
 
-To learn more about Next.js, take a look at the following resources:
+Add these Vercel environment variables:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```text
+NEXT_PUBLIC_CONVEX_URL
+ADMIN_ACCESS_TOKEN
+CLOUDINARY_CLOUD_NAME
+CLOUDINARY_API_KEY
+CLOUDINARY_API_SECRET
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Then deploy. Daddy James' link will be:
 
-## Deploy on Vercel
+```text
+https://<your-domain>/daddy-james/<ADMIN_ACCESS_TOKEN>
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## CI
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+GitHub Actions runs install, lint, TypeScript and the production Next.js build.
