@@ -80,6 +80,108 @@ function launchConfetti() {
   window.setTimeout(() => layer.remove(), 4700);
 }
 
+
+function launchSideConfetti() {
+  const layer = document.createElement("div");
+  layer.setAttribute("aria-hidden", "true");
+
+  Object.assign(layer.style, {
+    position: "fixed",
+    inset: "0",
+    overflow: "hidden",
+    pointerEvents: "none",
+    zIndex: "9998",
+  });
+
+  document.body.appendChild(layer);
+
+  (["left", "right"] as const).forEach((side) => {
+    const popper = document.createElement("div");
+    popper.textContent = "🎉";
+
+    Object.assign(popper.style, {
+      position: "absolute",
+      top: "58%",
+      [side]: "-4px",
+      fontSize: "clamp(34px, 5vw, 58px)",
+      filter: "drop-shadow(0 8px 18px rgba(120,74,12,.2))",
+      transform:
+        side === "left"
+          ? "translateY(-50%) rotate(-18deg)"
+          : "translateY(-50%) scaleX(-1) rotate(-18deg)",
+      transformOrigin: "center",
+    });
+
+    layer.appendChild(popper);
+
+    popper.animate(
+      [
+        { transform: `${side === "left" ? "" : "scaleX(-1) "}translateY(-50%) rotate(-18deg) scale(.78)`, opacity: 0 },
+        { opacity: 1, offset: 0.15 },
+        { transform: `${side === "left" ? "" : "scaleX(-1) "}translateY(-50%) rotate(-8deg) scale(1.08)`, opacity: 1, offset: 0.45 },
+        { transform: `${side === "left" ? "" : "scaleX(-1) "}translateY(-50%) rotate(-18deg) scale(1)`, opacity: 0.9 },
+      ],
+      {
+        duration: 1100,
+        easing: "cubic-bezier(.16,.8,.24,1)",
+        fill: "forwards",
+      },
+    );
+
+    Array.from({ length: 52 }, (_, index) => {
+      const piece = document.createElement("span");
+      const size = 4 + Math.random() * 7;
+      const direction = side === "left" ? 1 : -1;
+      const travelX = direction * (120 + Math.random() * 340);
+      const lift = -(70 + Math.random() * 240);
+      const fall = 90 + Math.random() * 210;
+      const rotation = direction * (360 + Math.random() * 760);
+      const delay = 100 + Math.random() * 260;
+      const duration = 1450 + Math.random() * 1100;
+
+      Object.assign(piece.style, {
+        position: "absolute",
+        top: `${54 + Math.random() * 9}%`,
+        [side]: `${10 + Math.random() * 20}px`,
+        width: `${size}px`,
+        height: `${size * (index % 3 === 0 ? 1.8 : 0.85)}px`,
+        borderRadius: index % 4 === 0 ? "999px" : "2px",
+        background: CONFETTI_COLORS[index % CONFETTI_COLORS.length],
+        boxShadow:
+          index % 6 === 0 ? "0 0 10px rgba(245,184,71,.7)" : "none",
+      });
+
+      layer.appendChild(piece);
+
+      piece.animate(
+        [
+          {
+            transform: "translate3d(0,0,0) rotate(0deg) scale(.7)",
+            opacity: 0,
+          },
+          {
+            transform: `translate3d(${travelX * 0.62}px,${lift}px,0) rotate(${rotation * 0.55}deg) scale(1)`,
+            opacity: 1,
+            offset: 0.45,
+          },
+          {
+            transform: `translate3d(${travelX}px,${lift + fall}px,0) rotate(${rotation}deg) scale(.92)`,
+            opacity: 0,
+          },
+        ],
+        {
+          duration,
+          delay,
+          easing: "cubic-bezier(.14,.72,.2,1)",
+          fill: "forwards",
+        },
+      );
+    });
+  });
+
+  window.setTimeout(() => layer.remove(), 3200);
+}
+
 function displayDate(timestamp: number) {
   return new Intl.DateTimeFormat("en-NG", {
     day: "numeric",
@@ -92,10 +194,12 @@ function displayDate(timestamp: number) {
 function CelebrationHero() {
   useEffect(() => {
     const first = window.setTimeout(launchConfetti, 180);
+    const sideBurst = window.setTimeout(launchSideConfetti, 560);
     const second = window.setTimeout(launchConfetti, 1350);
 
     return () => {
       window.clearTimeout(first);
+      window.clearTimeout(sideBurst);
       window.clearTimeout(second);
     };
   }, []);

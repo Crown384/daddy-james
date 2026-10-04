@@ -12,9 +12,6 @@ export default function Home() {
           <p className="text-xs font-semibold uppercase tracking-[0.26em] text-stone-500">
             Chapel of Transformation
           </p>
-          <p className="mt-1 text-sm font-medium text-stone-800">
-            A Birthday Tribute for Daddy James
-          </p>
         </header>
 
         <section className="flex flex-1 flex-col gap-10 py-10 sm:py-14 lg:grid lg:grid-cols-[0.88fr_1.12fr] lg:items-center lg:gap-20 lg:py-16">
