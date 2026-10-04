@@ -197,23 +197,22 @@ export function BirthdayForm() {
   }
 
   return (
-    <div className="rounded-[2rem] border border-white/80 bg-white/80 p-5 shadow-[0_30px_80px_-32px_rgba(41,37,36,0.35)] backdrop-blur-xl sm:p-7">
-      <div className="mb-7">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-700">
-          Add your own
-        </p>
-        <h2 className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-stone-950 sm:text-3xl">
-          Leave something for Daddy James
+    <div className="w-full rounded-[1.75rem] border border-white/80 bg-white/82 p-5 shadow-[0_28px_75px_-34px_rgba(41,37,36,0.38)] backdrop-blur-xl sm:rounded-[2rem] sm:p-7">
+      <div className="mb-6 sm:mb-7">
+        <h2 className="text-2xl font-semibold tracking-[-0.035em] text-stone-950 sm:text-3xl">
+          Add your birthday wish
         </h2>
-        <p className="mt-2 text-sm leading-6 text-stone-500">
-          Every field is optional. If you add media, choose one picture or one video.
+        <p className="mt-2 max-w-lg text-sm leading-6 text-stone-500">
+          You can send a message on its own, or pair it with one photo or one
+          video. Your name is optional.
         </p>
       </div>
 
       <form className="space-y-5" onSubmit={handleSubmit}>
         <label className="block">
-          <span className="mb-2 block text-sm font-semibold text-stone-700">
-            Your name
+          <span className="mb-2 flex items-center justify-between gap-3 text-sm font-semibold text-stone-700">
+            <span>Your name</span>
+            <span className="text-xs font-normal text-stone-400">Optional</span>
           </span>
           <input
             value={name}
@@ -226,7 +225,7 @@ export function BirthdayForm() {
 
         <label className="block">
           <span className="mb-2 block text-sm font-semibold text-stone-700">
-            Your birthday wish
+            Your birthday message
           </span>
           <textarea
             value={wish}
@@ -242,18 +241,18 @@ export function BirthdayForm() {
         </label>
 
         <div>
-          <div className="mb-2 flex items-center justify-between gap-3">
-            <span className="text-sm font-semibold text-stone-700">
-              Add one memory
-            </span>
-            <span className="text-xs text-stone-400">
-              Picture or video
-            </span>
+          <div className="mb-2 flex items-end justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold text-stone-700">
+                Add a photo or video
+              </p>
+              <p className="mt-0.5 text-xs text-stone-400">Choose one</p>
+            </div>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
             <label
-              className={`cursor-pointer rounded-2xl border border-dashed p-4 transition ${
+              className={`cursor-pointer rounded-2xl border border-dashed p-3.5 transition sm:p-4 ${
                 photo
                   ? "border-amber-500 bg-amber-50"
                   : "border-stone-300 bg-[#fbfaf7] hover:border-amber-500 hover:bg-amber-50/40"
@@ -271,18 +270,18 @@ export function BirthdayForm() {
               <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-100 text-lg">
                 ♡
               </span>
-              <span className="mt-3 block truncate text-sm font-semibold text-stone-800">
-                {photo ? photo.name : "Add a picture"}
+              <span className="mt-2.5 block truncate text-sm font-semibold text-stone-800">
+                {photo ? photo.name : "Photo"}
               </span>
-              <span className="mt-1 block text-xs leading-5 text-stone-500">
+              <span className="mt-1 block text-[11px] leading-4 text-stone-500 sm:text-xs sm:leading-5">
                 {photo
                   ? `${formatSize(photo.size)} · selected`
-                  : "JPG, PNG or other image · up to 10 MB"}
+                  : "Share a picture"}
               </span>
             </label>
 
             <label
-              className={`cursor-pointer rounded-2xl border border-dashed p-4 transition ${
+              className={`cursor-pointer rounded-2xl border border-dashed p-3.5 transition sm:p-4 ${
                 video
                   ? "border-rose-400 bg-rose-50"
                   : "border-stone-300 bg-[#fbfaf7] hover:border-rose-400 hover:bg-rose-50/50"
@@ -300,19 +299,19 @@ export function BirthdayForm() {
               <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-rose-100 text-lg">
                 ▶
               </span>
-              <span className="mt-3 block truncate text-sm font-semibold text-stone-800">
-                {video ? video.name : "Add a video"}
+              <span className="mt-2.5 block truncate text-sm font-semibold text-stone-800">
+                {video ? video.name : "Video"}
               </span>
-              <span className="mt-1 block text-xs leading-5 text-stone-500">
+              <span className="mt-1 block text-[11px] leading-4 text-stone-500 sm:text-xs sm:leading-5">
                 {video
                   ? `${formatSize(video.size)} · selected`
-                  : "A short birthday video · up to 100 MB"}
+                  : "Share a short video"}
               </span>
             </label>
           </div>
 
           {photo || video ? (
-            <p className="mt-2 text-xs text-stone-500">
+            <p className="mt-2 text-xs leading-5 text-stone-500">
               Choosing the other media type will replace this selection.
             </p>
           ) : null}
@@ -326,17 +325,24 @@ export function BirthdayForm() {
 
         {submitted ? (
           <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-4 text-sm leading-6 text-emerald-800">
-            <span className="font-semibold">Sent with love.</span> Your contribution is now in
-            Daddy James&apos; birthday book. ♥
+            <span className="font-semibold">Sent with love.</span> Your
+            contribution is now part of Daddy James&apos; birthday book. ♥
           </div>
         ) : null}
+
+        <p className="flex items-center gap-2 text-xs leading-5 text-stone-500">
+          <span className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" />
+          Only Daddy James will see what you send.
+        </p>
 
         <button
           type="submit"
           disabled={submitting || !hasContent}
-          className="flex h-13 w-full items-center justify-center rounded-2xl bg-stone-950 px-5 text-sm font-semibold text-white shadow-lg shadow-stone-950/10 transition hover:bg-amber-800 disabled:cursor-not-allowed disabled:bg-stone-300"
+          className="flex min-h-13 w-full items-center justify-center rounded-2xl bg-stone-950 px-5 py-3.5 text-center text-sm font-semibold text-white shadow-lg shadow-stone-950/10 transition hover:bg-amber-800 disabled:cursor-not-allowed disabled:bg-stone-300"
         >
-          {submitting ? status || "Sending…" : "Send birthday wish"}
+          {submitting
+            ? status || "Sending…"
+            : "Add to Daddy James’ birthday book"}
         </button>
       </form>
     </div>
