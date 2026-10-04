@@ -79,36 +79,54 @@ export function BirthdayForm() {
 
   function choosePhoto(file: File | null) {
     setError("");
+
     if (!file) {
       setPhoto(null);
       return;
     }
+
     if (!file.type.startsWith("image/")) {
       setError("Please choose an image file.");
       return;
     }
+
     if (file.size > MAX_PHOTO_SIZE) {
       setError("Please keep your photo under 10 MB.");
       return;
     }
+
     setPhoto(file);
+    setVideo(null);
+
+    if (videoInput.current) {
+      videoInput.current.value = "";
+    }
   }
 
   function chooseVideo(file: File | null) {
     setError("");
+
     if (!file) {
       setVideo(null);
       return;
     }
+
     if (!file.type.startsWith("video/")) {
       setError("Please choose a video file.");
       return;
     }
+
     if (file.size > MAX_VIDEO_SIZE) {
       setError("Please keep your video under 100 MB.");
       return;
     }
+
     setVideo(file);
+    setPhoto(null);
+
+    if (photoInput.current) {
+      photoInput.current.value = "";
+    }
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -130,9 +148,7 @@ export function BirthdayForm() {
       if (photo) {
         setStatus("Uploading your picture…");
         photoUpload = await uploadToCloudinary(photo, "image");
-      }
-
-      if (video) {
+      } else if (video) {
         setStatus("Uploading your video…");
         videoUpload = await uploadToCloudinary(video, "video");
       }
@@ -153,6 +169,7 @@ export function BirthdayForm() {
       });
 
       const payload = await response.json().catch(() => null);
+
       if (!response.ok) {
         throw new Error(payload?.error ?? "We could not save your birthday wish.");
       }
@@ -161,8 +178,10 @@ export function BirthdayForm() {
       setWish("");
       setPhoto(null);
       setVideo(null);
+
       if (photoInput.current) photoInput.current.value = "";
       if (videoInput.current) videoInput.current.value = "";
+
       setSubmitted(true);
       setStatus("");
     } catch (submissionError) {
@@ -187,13 +206,15 @@ export function BirthdayForm() {
           Leave something for Daddy James
         </h2>
         <p className="mt-2 text-sm leading-6 text-stone-500">
-          Every field is optional. Share only what you want.
+          Every field is optional. If you add media, choose one picture or one video.
         </p>
       </div>
 
       <form className="space-y-5" onSubmit={handleSubmit}>
         <label className="block">
-          <span className="mb-2 block text-sm font-semibold text-stone-700">Your name</span>
+          <span className="mb-2 block text-sm font-semibold text-stone-700">
+            Your name
+          </span>
           <input
             value={name}
             onChange={(event) => setName(event.target.value)}
@@ -204,7 +225,9 @@ export function BirthdayForm() {
         </label>
 
         <label className="block">
-          <span className="mb-2 block text-sm font-semibold text-stone-700">Your birthday wish</span>
+          <span className="mb-2 block text-sm font-semibold text-stone-700">
+            Your birthday wish
+          </span>
           <textarea
             value={wish}
             onChange={(event) => setWish(event.target.value)}
@@ -218,44 +241,81 @@ export function BirthdayForm() {
           </span>
         </label>
 
-        <div className="grid gap-3 sm:grid-cols-2">
-          <label className="cursor-pointer rounded-2xl border border-dashed border-stone-300 bg-[#fbfaf7] p-4 transition hover:border-amber-500 hover:bg-amber-50/40">
-            <input
-              ref={photoInput}
-              type="file"
-              accept="image/*"
-              className="sr-only"
-              onChange={(event) => choosePhoto(event.target.files?.[0] ?? null)}
-            />
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-100 text-lg">
-              ♡
+        <div>
+          <div className="mb-2 flex items-center justify-between gap-3">
+            <span className="text-sm font-semibold text-stone-700">
+              Add one memory
             </span>
-            <span className="mt-3 block text-sm font-semibold text-stone-800">
-              {photo ? photo.name : "Add a picture"}
+            <span className="text-xs text-stone-400">
+              Picture or video
             </span>
-            <span className="mt-1 block text-xs leading-5 text-stone-500">
-              {photo ? formatSize(photo.size) : "JPG, PNG or other image · up to 10 MB"}
-            </span>
-          </label>
+          </div>
 
-          <label className="cursor-pointer rounded-2xl border border-dashed border-stone-300 bg-[#fbfaf7] p-4 transition hover:border-amber-500 hover:bg-amber-50/40">
-            <input
-              ref={videoInput}
-              type="file"
-              accept="video/*"
-              className="sr-only"
-              onChange={(event) => chooseVideo(event.target.files?.[0] ?? null)}
-            />
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-rose-100 text-lg">
-              ▶
-            </span>
-            <span className="mt-3 block text-sm font-semibold text-stone-800">
-              {video ? video.name : "Add a video"}
-            </span>
-            <span className="mt-1 block text-xs leading-5 text-stone-500">
-              {video ? formatSize(video.size) : "A short birthday video · up to 100 MB"}
-            </span>
-          </label>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label
+              className={`cursor-pointer rounded-2xl border border-dashed p-4 transition ${
+                photo
+                  ? "border-amber-500 bg-amber-50"
+                  : "border-stone-300 bg-[#fbfaf7] hover:border-amber-500 hover:bg-amber-50/40"
+              }`}
+            >
+              <input
+                ref={photoInput}
+                type="file"
+                accept="image/*"
+                className="sr-only"
+                onChange={(event) =>
+                  choosePhoto(event.target.files?.[0] ?? null)
+                }
+              />
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-100 text-lg">
+                ♡
+              </span>
+              <span className="mt-3 block truncate text-sm font-semibold text-stone-800">
+                {photo ? photo.name : "Add a picture"}
+              </span>
+              <span className="mt-1 block text-xs leading-5 text-stone-500">
+                {photo
+                  ? `${formatSize(photo.size)} · selected`
+                  : "JPG, PNG or other image · up to 10 MB"}
+              </span>
+            </label>
+
+            <label
+              className={`cursor-pointer rounded-2xl border border-dashed p-4 transition ${
+                video
+                  ? "border-rose-400 bg-rose-50"
+                  : "border-stone-300 bg-[#fbfaf7] hover:border-rose-400 hover:bg-rose-50/50"
+              }`}
+            >
+              <input
+                ref={videoInput}
+                type="file"
+                accept="video/*"
+                className="sr-only"
+                onChange={(event) =>
+                  chooseVideo(event.target.files?.[0] ?? null)
+                }
+              />
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-rose-100 text-lg">
+                ▶
+              </span>
+              <span className="mt-3 block truncate text-sm font-semibold text-stone-800">
+                {video ? video.name : "Add a video"}
+              </span>
+              <span className="mt-1 block text-xs leading-5 text-stone-500">
+                {video
+                  ? `${formatSize(video.size)} · selected`
+                  : "A short birthday video · up to 100 MB"}
+              </span>
+            </label>
+          </div>
+
+          {photo || video ? (
+            <p className="mt-2 text-xs text-stone-500">
+              Choosing the other media type will replace this selection.
+            </p>
+          ) : null}
         </div>
 
         {error ? (
