@@ -1,7 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  KeyboardEvent as ReactKeyboardEvent,
+  MouseEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import type { BirthdaySubmission } from "@/lib/types";
 
 const CONFETTI_COLORS = [
@@ -166,7 +173,13 @@ function SoundIcon({ muted }: { muted: boolean }) {
   );
 }
 
-function VideoMemory({ src }: { src: string }) {
+function VideoMemory({
+  src,
+  expanded = false,
+}: {
+  src: string;
+  expanded?: boolean;
+}) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [muted, setMuted] = useState(true);
 
@@ -178,7 +191,9 @@ function VideoMemory({ src }: { src: string }) {
     void video.play().catch(() => undefined);
   }, []);
 
-  function toggleSound() {
+  function toggleSound(event: MouseEvent<HTMLButtonElement>) {
+    event.stopPropagation();
+
     const video = videoRef.current;
     if (!video) return;
 
@@ -192,7 +207,13 @@ function VideoMemory({ src }: { src: string }) {
   }
 
   return (
-    <div className="relative h-full min-h-[205px] overflow-hidden bg-stone-200 sm:min-h-[230px]">
+    <div
+      className={
+        expanded
+          ? "relative flex h-full min-h-[320px] items-center justify-center overflow-hidden bg-stone-950 sm:min-h-[500px]"
+          : "relative flex h-full min-h-[220px] items-center justify-center overflow-hidden bg-stone-950 sm:min-h-[260px]"
+      }
+    >
       <video
         ref={videoRef}
         src={src}
@@ -201,17 +222,21 @@ function VideoMemory({ src }: { src: string }) {
         loop
         playsInline
         preload="metadata"
-        className="absolute inset-0 h-full w-full object-cover"
+        className="absolute inset-0 h-full w-full object-contain"
       >
         Your browser does not support video playback.
       </video>
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/40 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/45 to-transparent" />
 
       <button
         type="button"
         onClick={toggleSound}
-        className="absolute bottom-3 right-3 flex h-9 w-9 items-center justify-center rounded-full border border-white/35 bg-black/45 text-white shadow-lg backdrop-blur-md transition hover:scale-105 hover:bg-black/65"
+        className={
+          expanded
+            ? "absolute bottom-4 right-4 flex h-11 w-11 items-center justify-center rounded-full border border-white/35 bg-black/50 text-white shadow-lg backdrop-blur-md transition hover:scale-105 hover:bg-black/70"
+            : "absolute bottom-3 right-3 flex h-9 w-9 items-center justify-center rounded-full border border-white/35 bg-black/45 text-white shadow-lg backdrop-blur-md transition hover:scale-105 hover:bg-black/65"
+        }
         aria-label={muted ? "Unmute video" : "Mute video"}
       >
         <SoundIcon muted={muted} />
@@ -220,38 +245,183 @@ function VideoMemory({ src }: { src: string }) {
   );
 }
 
-function MediaPanel({ submission }: { submission: BirthdaySubmission }) {
+function PhotoMemory({
+  src,
+  alt,
+  expanded = false,
+}: {
+  src: string;
+  alt: string;
+  expanded?: boolean;
+}) {
+  return (
+    <div
+      className={
+        expanded
+          ? "relative flex h-full min-h-[320px] items-center justify-center overflow-hidden bg-stone-950 sm:min-h-[500px]"
+          : "relative flex h-full min-h-[220px] items-center justify-center overflow-hidden bg-stone-100 sm:min-h-[260px]"
+      }
+    >
+      <Image
+        src={src}
+        alt=""
+        fill
+        sizes={expanded ? "80vw" : "(max-width: 768px) 44vw, 300px"}
+        className="scale-110 object-cover opacity-30 blur-2xl"
+        aria-hidden="true"
+      />
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        sizes={expanded ? "80vw" : "(max-width: 768px) 44vw, 300px"}
+        className="object-contain"
+      />
+    </div>
+  );
+}
+
+function CompactMedia({ submission }: { submission: BirthdaySubmission }) {
   if (submission.videoUrl) {
     return <VideoMemory src={submission.videoUrl} />;
   }
 
   if (submission.photoUrl) {
     return (
-      <div className="relative h-full min-h-[205px] overflow-hidden bg-stone-100 sm:min-h-[230px]">
-        <Image
-          src={submission.photoUrl}
-          alt={
-            submission.name
-              ? `A birthday memory from ${submission.name}`
-              : "Birthday memory"
-          }
-          fill
-          sizes="(max-width: 768px) 42vw, 300px"
-          className="object-cover"
-        />
-      </div>
+      <PhotoMemory
+        src={submission.photoUrl}
+        alt={
+          submission.name
+            ? `A birthday memory from ${submission.name}`
+            : "Birthday memory"
+        }
+      />
     );
   }
 
+  return null;
+}
+
+function MessageDetails({
+  submission,
+  expanded = false,
+}: {
+  submission: BirthdaySubmission;
+  expanded?: boolean;
+}) {
   return (
-    <div className="flex h-full min-h-[205px] items-center justify-center bg-gradient-to-br from-amber-100 via-[#fff8eb] to-rose-100 sm:min-h-[230px]">
-      <div className="text-center">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-amber-900/10 bg-white/75 text-2xl text-amber-700 shadow-sm">
-          ♥
-        </div>
-        <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.24em] text-amber-800/70">
-          With love
+    <div
+      className={
+        expanded
+          ? "relative flex h-full flex-col overflow-y-auto p-6 sm:p-8 lg:p-10"
+          : "relative flex min-h-[220px] flex-col p-4 sm:min-h-[260px] sm:p-5"
+      }
+    >
+      <span className="absolute right-4 top-3 text-sm text-amber-700/55">✦</span>
+
+      <p
+        className={
+          expanded
+            ? "pr-7 text-[10px] font-semibold uppercase tracking-[0.27em] text-amber-700"
+            : "pr-7 text-[8px] font-semibold uppercase tracking-[0.25em] text-amber-700 sm:text-[9px]"
+        }
+      >
+        From
+      </p>
+
+      <h2
+        className={
+          expanded
+            ? "mt-2 pr-6 font-serif text-3xl font-semibold leading-tight tracking-[-0.035em] text-stone-950"
+            : "mt-1 pr-5 font-serif text-[1.12rem] font-semibold leading-tight tracking-[-0.025em] text-stone-950 sm:text-[1.35rem]"
+        }
+      >
+        {submission.name || "Someone who loves you"}
+      </h2>
+
+      <div className={expanded ? "mt-4 h-px w-12 bg-amber-600/40" : "mt-2.5 h-px w-10 bg-amber-600/40"} />
+
+      {submission.wish ? (
+        <p
+          className={
+            expanded
+              ? "mt-6 whitespace-pre-wrap font-serif text-lg leading-8 text-stone-700 sm:text-xl sm:leading-9"
+              : "mt-3 whitespace-pre-wrap text-[11px] leading-[1.65] text-stone-600 sm:text-[13px] sm:leading-[1.65]"
+          }
+        >
+          {submission.wish}
         </p>
+      ) : (
+        <p
+          className={
+            expanded
+              ? "mt-6 font-serif text-lg italic leading-8 text-stone-500"
+              : "mt-3 font-serif text-[12px] italic leading-5 text-stone-500 sm:text-sm"
+          }
+        >
+          A memory sent with love for your special day.
+        </p>
+      )}
+
+      <div className="mt-auto flex items-end justify-between gap-2 pt-5">
+        <p className={expanded ? "text-[10px] uppercase tracking-[0.17em] text-stone-400" : "text-[8px] uppercase tracking-[0.14em] text-stone-400 sm:text-[9px]"}>
+          {displayDate(submission.createdAt)}
+        </p>
+        <span className={expanded ? "font-serif text-xl text-rose-400" : "font-serif text-base text-rose-400"}>
+          ♡
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function TextOnlyCard({
+  submission,
+  expanded = false,
+}: {
+  submission: BirthdaySubmission;
+  expanded?: boolean;
+}) {
+  return (
+    <div
+      className={
+        expanded
+          ? "relative flex min-h-[420px] flex-col justify-center overflow-y-auto bg-[radial-gradient(circle_at_top_left,_rgba(251,191,36,0.16),_transparent_38%),radial-gradient(circle_at_bottom_right,_rgba(251,113,133,0.12),_transparent_35%),#fffdf8] p-8 sm:p-12 lg:p-14"
+          : "relative min-h-[220px] bg-[radial-gradient(circle_at_top_left,_rgba(251,191,36,0.16),_transparent_38%),radial-gradient(circle_at_bottom_right,_rgba(251,113,133,0.12),_transparent_35%),#fffdf8] p-6 sm:min-h-[250px] sm:p-8"
+      }
+    >
+      <span className="absolute right-5 top-4 text-amber-700/50">✦</span>
+      <p className="text-[9px] font-semibold uppercase tracking-[0.27em] text-amber-700 sm:text-[10px]">
+        From
+      </p>
+
+      <h2
+        className={
+          expanded
+            ? "mt-2 font-serif text-3xl font-semibold tracking-[-0.035em] text-stone-950 sm:text-4xl"
+            : "mt-2 font-serif text-2xl font-semibold tracking-[-0.03em] text-stone-950"
+        }
+      >
+        {submission.name || "Someone who loves you"}
+      </h2>
+
+      <div className="mt-4 h-px w-12 bg-amber-600/40" />
+
+      <p
+        className={
+          expanded
+            ? "mt-7 whitespace-pre-wrap font-serif text-xl leading-9 text-stone-700 sm:text-2xl sm:leading-10"
+            : "mt-5 whitespace-pre-wrap font-serif text-[15px] leading-7 text-stone-700 sm:text-lg sm:leading-8"
+        }
+      >
+        {submission.wish || "A birthday wish sent with love."}
+      </p>
+
+      <div className="mt-7 flex items-end justify-between gap-3">
+        <p className="text-[9px] uppercase tracking-[0.15em] text-stone-400">
+          {displayDate(submission.createdAt)}
+        </p>
+        <span className="font-serif text-lg text-rose-400">♡</span>
       </div>
     </div>
   );
@@ -260,60 +430,136 @@ function MediaPanel({ submission }: { submission: BirthdaySubmission }) {
 function WishCard({
   submission,
   index,
+  onOpen,
 }: {
   submission: BirthdaySubmission;
   index: number;
+  onOpen: () => void;
 }) {
+  const hasMedia = Boolean(submission.photoUrl || submission.videoUrl);
   const tilt =
     index % 3 === 0
-      ? "rotate-[0.28deg]"
+      ? "rotate-[0.22deg]"
       : index % 3 === 1
-        ? "-rotate-[0.35deg]"
-        : "rotate-[0.12deg]";
+        ? "-rotate-[0.28deg]"
+        : "rotate-[0.1deg]";
+
+  function handleKeyDown(event: ReactKeyboardEvent<HTMLElement>) {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      onOpen();
+    }
+  }
 
   return (
-    <div className="relative py-9 sm:py-11">
-      <div className="absolute left-1/2 top-0 z-10 h-11 w-px -translate-x-1/2 bg-amber-900/30" />
-      <div className="absolute left-1/2 top-7 z-20 h-4 w-4 -translate-x-1/2 rounded-full border-[4px] border-[#fbf7ef] bg-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.72)]" />
+    <div className="relative py-8 sm:py-10">
+      <div className="absolute left-1/2 top-0 z-10 h-10 w-px -translate-x-1/2 bg-amber-900/30" />
+      <div className="absolute left-1/2 top-6 z-20 h-4 w-4 -translate-x-1/2 rounded-full border-[4px] border-[#fbf7ef] bg-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.72)]" />
 
       <article
-        className={`relative z-20 mx-auto grid w-[calc(100%-1.25rem)] max-w-[680px] grid-cols-[42%_58%] overflow-hidden rounded-[1.45rem] border border-white/95 bg-[#fffdf8] shadow-[0_24px_64px_-34px_rgba(83,54,24,0.44)] transition duration-500 hover:-translate-y-1 hover:shadow-[0_30px_80px_-34px_rgba(83,54,24,0.52)] ${tilt}`}
+        role="button"
+        tabIndex={0}
+        onClick={onOpen}
+        onKeyDown={handleKeyDown}
+        className={`group relative z-20 mx-auto w-[calc(100%-1.25rem)] max-w-[640px] cursor-pointer overflow-hidden rounded-[1.45rem] border border-white/95 bg-[#fffdf8] shadow-[0_24px_64px_-34px_rgba(83,54,24,0.44)] outline-none transition duration-500 hover:-translate-y-1 hover:shadow-[0_30px_80px_-34px_rgba(83,54,24,0.54)] focus-visible:ring-4 focus-visible:ring-amber-500/20 ${tilt}`}
+        aria-label={`Open birthday wish from ${submission.name || "anonymous"}`}
       >
-        <MediaPanel submission={submission} />
-
-        <div className="relative flex min-h-[205px] flex-col p-4 sm:min-h-[230px] sm:p-5">
-          <span className="absolute right-4 top-3 text-sm text-amber-700/55">
-            ✦
-          </span>
-
-          <p className="pr-6 text-[8px] font-semibold uppercase tracking-[0.25em] text-amber-700 sm:text-[9px]">
-            From
-          </p>
-
-          <h2 className="mt-1 pr-5 font-serif text-[1.12rem] font-semibold leading-tight tracking-[-0.025em] text-stone-950 sm:text-[1.35rem]">
-            {submission.name || "Someone who loves you"}
-          </h2>
-
-          <div className="mt-2.5 h-px w-10 bg-amber-600/40" />
-
-          {submission.wish ? (
-            <p className="mt-3 whitespace-pre-wrap text-[11px] leading-[1.65] text-stone-600 sm:text-[13px] sm:leading-[1.65]">
-              {submission.wish}
-            </p>
-          ) : (
-            <p className="mt-3 font-serif text-[12px] italic leading-5 text-stone-500 sm:text-sm">
-              A memory sent with love for your special day.
-            </p>
-          )}
-
-          <div className="mt-auto flex items-end justify-between gap-2 pt-3">
-            <p className="text-[8px] uppercase tracking-[0.14em] text-stone-400 sm:text-[9px]">
-              {displayDate(submission.createdAt)}
-            </p>
-            <span className="font-serif text-base text-rose-400">♡</span>
+        {hasMedia ? (
+          <div className="grid grid-cols-[44%_56%]">
+            <CompactMedia submission={submission} />
+            <MessageDetails submission={submission} />
           </div>
-        </div>
+        ) : (
+          <TextOnlyCard submission={submission} />
+        )}
+
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-amber-500/30 to-transparent opacity-0 transition group-hover:opacity-100" />
       </article>
+    </div>
+  );
+}
+
+function ExpandedMedia({ submission }: { submission: BirthdaySubmission }) {
+  if (submission.videoUrl) {
+    return <VideoMemory src={submission.videoUrl} expanded />;
+  }
+
+  if (submission.photoUrl) {
+    return (
+      <PhotoMemory
+        src={submission.photoUrl}
+        alt={
+          submission.name
+            ? `A birthday memory from ${submission.name}`
+            : "Birthday memory"
+        }
+        expanded
+      />
+    );
+  }
+
+  return null;
+}
+
+function WishModal({
+  submission,
+  onClose,
+}: {
+  submission: BirthdaySubmission;
+  onClose: () => void;
+}) {
+  const hasMedia = Boolean(submission.photoUrl || submission.videoUrl);
+
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    function handleKeyDown(event: globalThis.KeyboardEvent) {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [onClose]);
+
+  return (
+    <div
+      className="fixed inset-0 z-[9000] flex items-center justify-center bg-stone-950/45 p-3 backdrop-blur-md sm:p-6"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Birthday wish from ${submission.name || "anonymous"}`}
+      onMouseDown={onClose}
+    >
+      <div
+        className="relative max-h-[92svh] w-full max-w-5xl overflow-hidden rounded-[1.8rem] border border-white/70 bg-[#fffdf8] shadow-[0_40px_120px_-35px_rgba(28,25,23,0.65)]"
+        onMouseDown={(event) => event.stopPropagation()}
+      >
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute right-3 top-3 z-30 flex h-10 w-10 items-center justify-center rounded-full border border-stone-900/10 bg-white/90 text-xl text-stone-700 shadow-md backdrop-blur transition hover:scale-105 hover:bg-white"
+          aria-label="Close wish"
+        >
+          ×
+        </button>
+
+        {hasMedia ? (
+          <div className="grid max-h-[92svh] overflow-y-auto md:grid-cols-[1.15fr_0.85fr]">
+            <ExpandedMedia submission={submission} />
+            <MessageDetails submission={submission} expanded />
+          </div>
+        ) : (
+          <div className="max-h-[92svh] overflow-y-auto">
+            <TextOnlyCard submission={submission} expanded />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -323,7 +569,7 @@ function BirthdayLights() {
     <div className="pointer-events-none absolute inset-y-0 left-1/2 z-0 w-10 -translate-x-1/2">
       <div className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-gradient-to-b from-amber-800/10 via-amber-900/30 to-amber-800/10" />
 
-      {Array.from({ length: 36 }).map((_, index) => {
+      {Array.from({ length: 40 }).map((_, index) => {
         const side = index % 2 === 0 ? "left-[8px]" : "right-[8px]";
         const glow =
           index % 3 === 0
@@ -336,7 +582,7 @@ function BirthdayLights() {
           <span
             key={index}
             className={`absolute h-2.5 w-2.5 rounded-full border-2 border-white/90 ${side} ${glow} ${index % 5 === 0 ? "animate-pulse" : ""}`}
-            style={{ top: `${(index / 35) * 100}%` }}
+            style={{ top: `${(index / 39) * 100}%` }}
           />
         );
       })}
@@ -346,6 +592,8 @@ function BirthdayLights() {
 
 export function BirthdayAlbum({ token }: { token: string }) {
   const [submissions, setSubmissions] = useState<BirthdaySubmission[]>([]);
+  const [selectedSubmission, setSelectedSubmission] =
+    useState<BirthdaySubmission | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
@@ -390,6 +638,10 @@ export function BirthdayAlbum({ token }: { token: string }) {
     return () => window.clearInterval(interval);
   }, [load]);
 
+  const closeModal = useCallback(() => {
+    setSelectedSubmission(null);
+  }, []);
+
   return (
     <main className="min-h-screen overflow-hidden bg-[#fbf7ef] text-stone-950">
       <CelebrationHero />
@@ -407,7 +659,7 @@ export function BirthdayAlbum({ token }: { token: string }) {
           </h2>
           <p className="mx-auto mt-3 max-w-lg text-sm leading-6 text-stone-500">
             Every light holds a message, a memory, or a face that wanted to
-            celebrate you.
+            celebrate you. Tap any card to open it.
           </p>
         </div>
 
@@ -433,7 +685,7 @@ export function BirthdayAlbum({ token }: { token: string }) {
         ) : null}
 
         {loading ? (
-          <div className="mx-auto mt-10 max-w-[680px] space-y-9 px-3">
+          <div className="mx-auto mt-10 max-w-[640px] space-y-9 px-3">
             {[0, 1, 2].map((item) => (
               <div
                 key={item}
@@ -462,6 +714,7 @@ export function BirthdayAlbum({ token }: { token: string }) {
                 key={submission._id}
                 submission={submission}
                 index={index}
+                onOpen={() => setSelectedSubmission(submission)}
               />
             ))}
 
@@ -474,6 +727,10 @@ export function BirthdayAlbum({ token }: { token: string }) {
           </div>
         )}
       </section>
+
+      {selectedSubmission ? (
+        <WishModal submission={selectedSubmission} onClose={closeModal} />
+      ) : null}
     </main>
   );
 }

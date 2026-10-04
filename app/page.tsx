@@ -23,21 +23,23 @@ export default function Home() {
         <section className="grid flex-1 items-center gap-12 py-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20 lg:py-16">
           <div className="max-w-xl">
             <span className="inline-flex rounded-full border border-amber-900/10 bg-amber-100/70 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-amber-900">
-              Celebrating a father
+              A birthday surprise
             </span>
+
             <h1 className="mt-6 text-balance text-5xl font-semibold leading-[0.94] tracking-[-0.055em] text-stone-950 sm:text-6xl lg:text-7xl">
-              Happy Birthday,
+              Help us celebrate
               <span className="block text-amber-700">Daddy James.</span>
             </h1>
+
             <p className="mt-6 max-w-lg text-pretty text-base leading-7 text-stone-600 sm:text-lg sm:leading-8">
-              We are gathering a little collection of words, pictures and videos
-              from everyone whose life you have touched.
+              Leave a birthday wish, a photo, or a video. We&apos;ll gather
+              everything into a private birthday book made especially for him.
             </p>
 
             <div className="mt-8 grid max-w-lg grid-cols-3 gap-3">
               {[
-                ["A note", "Share a wish"],
-                ["A picture", "Keep a memory"],
+                ["A note", "Write your wish"],
+                ["A picture", "Share a memory"],
                 ["A video", "Say it yourself"],
               ].map(([title, copy]) => (
                 <div
@@ -52,7 +54,7 @@ export default function Home() {
 
             <p className="mt-6 flex items-center gap-2 text-xs leading-5 text-stone-500">
               <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />
-              Your submission is private and will only be shown in Daddy James&apos; birthday book.
+              Your submission is private and will only be shown to Daddy James.
             </p>
           </div>
 
